@@ -4,7 +4,7 @@
 Creates more text type to a salesforce object(Version 1.1).
    
 # Installation URL
-https://login.salesforce.com/packaging/installPackage.apexp?p0=04t90000000Reqb(Version 1.1)
+https://login.salesforce.com/packaging/installPackage.apexp?p0=04t90000000Reqb (Version 1.1)
  
 # Screenshots
 * ![ScreenShot](https://github.com/SalesforceApp/Multi-Fields-for-Salesforce/blob/master/Imgs/1.png)
