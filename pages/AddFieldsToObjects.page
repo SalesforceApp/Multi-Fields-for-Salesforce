@@ -1,0 +1,285 @@
+<apex:page controller="AddFieldsToObjectsController" tabStyle="Create_Fields__tab">
+    <script src="//code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.18.3/js/jquery.metadata.js"></script>
+    <script type="text/javascript">
+
+        if({!SubmitCheck}){
+            alert("Submitted successfully");
+        }
+        
+        function disabledAction(obj){
+            if(!$(obj).is(':disabled')){
+                $(obj).prop('disabled', true);
+                $(obj).addClass('btnDisabled');
+                $(obj).val('Add Field...');
+            }else{
+                $(obj).prop('disabled', false);
+                $(obj).removeClass('btnDisabled');
+                $(obj).val('Add Field');
+            }
+        }
+        function setAdvisedFieldName(obj) {
+            var nameObj = $(obj).parent().parent().next().find("input");
+            if(nameObj.val() == "") {
+                var tempName = $.trim($(obj).val());
+                //var resultName=tempName.replace(/\ +/g,"_");
+                var resultName=tempName.replace(/([~!@#$%^&*()_+=-`{}\[\]\|\\:;'<>,.\/? ])+/g,"_").replace(/^(_)+|(_)+$/g,'');
+                var firstChar = resultName.charAt(0);
+                var intRegex = /^\d+$/;
+                if(intRegex.test(firstChar)){
+                    resultName = "X" + resultName; 
+                }
+                nameObj.val(resultName);
+            }
+        }
+
+        function checkFieldRequired(obj) {
+            if($(obj).is(':checked')) {
+                $(obj).parent().next().next().find("input").each(function(){
+                    $(this).prop('checked', true);
+                    $(this).prop('disabled', true);
+                });
+            }else{
+                $(obj).parent().next().next().find("input").each(function(){
+                    $(this).prop('disabled', false);
+                });
+            }
+        }
+
+        function checkReadOnly(obj){
+            if($(obj).is(':checked')){
+                $(obj).parent().prev().find("input").prop('checked', true);
+            }
+        }
+
+        function checkVisiable(obj){
+            if(!$(obj).is(':checked')){
+                $(obj).parent().next().find("input").prop('checked', false);
+            }
+        }
+        function checkVisiableSelAll(obj){
+            if($(obj).is(':checked')){
+                $('.visiable').each(function(){
+                    $(this).prop('checked', true);
+                });
+            }else{
+                $('.visiable').each(function(){
+                    $(this).prop('checked', false);
+                });
+                $('.readonly').each(function(){
+                    $(this).prop('checked', false);
+                });
+                $('.readOnlySelAll').prop('checked', false);
+            }
+        }
+
+        function checkReadOnlySelAll(obj){
+            if($(obj).is(':checked')){
+                $('.readonly').each(function(){
+                    $(this).prop('checked', true);
+                });
+                $('.visiable').each(function(){
+                    $(this).prop('checked', true);
+                });
+                $('.visiableSelAll').prop('checked', true);
+            }else{
+                $('.readonly').each(function(){
+                    $(this).prop('checked', false);
+                });
+            }
+        }
+
+        $(document).ready(function(){
+        
+            $(".addFieldForm").validate();
+            $.validator.addMethod("notEqualTo",function(value,element,param) {        
+                var count = 0;
+                $(param).each(function(){
+                    if($(this).val() == value){
+                        count++;
+                    }
+                });
+                if(count > 1){
+                    return false;
+                }else{
+                    return true;
+                }
+                
+                },"There is already a field");
+
+            $.validator.addMethod("checkFieldName",function(value,element,param) {        
+                
+                var firstChar = value.charAt(0);
+                var intRegex = /^\d+$/;
+                if(intRegex.test(firstChar)){
+                    return false; 
+                }
+
+                var formatRegex = /([~!@#$%^&*()\-+=`{}\[\]\|\\:;'<>,.\/? ])+/g;
+                if(formatRegex.test(value)){
+                    return false;
+                }
+                var formatRegex2 = /^(_)+|(_)+$/g;
+                if(formatRegex2.test(value)){
+                    return false;
+                }
+                
+                return true;
+                
+                },"Error: The custom field name you provided 33 on object Account can only contain alphanumeric characters, must begin with a letter, cannot end with an underscore or contain two consecutive underscore characters, and must be unique across all Account fields");
+         });
+         
+        function checkForm(obj) {
+            if($(".addFieldForm").valid()) {
+                $(obj).val('Submit...');
+                $(obj).addClass('btnDisabled');
+                if($('.submitFlag').val() == 'true') {
+                    return false;
+                }
+                $('.submitFlag').val('true');
+                return true;
+            }
+            return false;
+        }
+    </script>
+    <style>
+        .requiredInput label {
+            color: red;
+            display:block;
+            border:0px;
+        }
+        .apexp .bPageBlock .error{
+            border:0px;
+        }
+
+        .displayBG{
+            border: none;
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: fixed;
+             text-align: center;
+        }
+        .loadingImg{
+            height: 20px;
+            width: 20px;
+            margin-top: 300px;        
+        }
+    </style>
+    <apex:sectionHeader subtitle="Create Fields for the Objects" title="Add fields to the Object"/>
+    <apex:form id="addFieldForm" styleClass="addFieldForm">
+        <apex:pageBlock mode="edit">
+            <apex:pageBlockTable value="{!Messages}" var="item">
+                <apex:column value="{!item}" style="color: #c00;"/>
+            </apex:pageBlockTable>
+
+            <apex:pageblockSection columns="1">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Select Object" for="selectobj"/>
+                    <apex:outputPanel >
+                        <apex:selectList value="{!SelectedObjType}" size="1" id="selectobj" onchange="changeObjectTypeJS()">
+                            <apex:selectOptions value="{!ObjectTypeOptions}" />
+                        </apex:selectList>
+                        <apex:actionStatus id="ObjStatus" >
+                            <apex:facet name="start"><img src="/img/loading.gif" alt="loading" /></apex:facet>
+                        </apex:actionStatus>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:actionFunction action="{!changeObjectType}" name="changeObjectTypeJS" reRender="fieldlist,profilelist,buttonpanel" status="ObjStatus"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Type" for="fieldtype"/>
+                    <apex:outputPanel >
+                        <apex:selectList value="{!SelectedFieldType}" size="1" id="fieldtype">
+                            <apex:selectOptions value="{!FieldTypeOptions}" />
+                        </apex:selectList>
+                        <apex:commandButton action="{!addFieldToObject}" value="Add Field" status="status" reRender="fieldlist" onclick="disabledAction(this)" oncomplete="disabledAction(this)"/>
+                        <apex:actionStatus id="status" > 
+                            <apex:facet name="start"><img src="/img/loading.gif" alt="loading" /></apex:facet>
+                        </apex:actionStatus>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageblockSection>
+            <apex:outputPanel id="fieldlist">
+                <br/>
+                <table class="list" border="0" cellpadding="0" cellspacing="0" >
+                    <tbody>
+                        <apex:repeat value="{!FieldInfoList}" var="item" rendered="{!FieldInfoList.size > 0}">
+                            <tr class="dataRow odd first" onblur="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onmouseover="if (window.hiOn){hiOn(this);}">
+                                <td scope="row" class="dataCell"><apex:outputText value="{!item.Type}"/></td>
+                                <td class="dataCell">
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"></div>
+                                        <apex:inputText id="fieldLabel" value="{!item.Label}" html-placeholder="Field Label" style="border: 2px inset;" onblur="setAdvisedFieldName(this)" styleClass="{required:true}" maxlength="40"/>
+                                    </div>
+                                </td>
+                                <td class="dataCell">
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"></div>
+                                        <apex:inputText id="fieldName" value="{!item.Name}" html-placeholder="Field Name" styleClass="{required:true,notEqualTo:'[id$=\'fieldName\']',checkFieldName:true}" style="border: 2px inset;"  maxlength="40"/>
+                                    </div>
+                                </td>
+                                <td class="dataCell">
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"></div>
+                                        <apex:inputText value="{!item.Length}" html-placeholder="Length" maxlength="255" style="border: 2px inset;" styleClass="{required:true,range:[1,255]}" onkeyup="this.value=this.value.replace(/\D/g,'')"/>
+                                    </div>
+                                </td>
+                                <td class="dataCell"><apex:inputText value="{!item.DefaultValue}" html-placeholder="Default Value"/></td>
+                                <td class="dataCell"><apex:inputCheckbox value="{!item.required}" onclick="checkFieldRequired(this)"/>Required</td>
+                                <td class="dataCell"><apex:inputTextarea value="{!item.HelpText}" html-placeholder="Help Text" cols="25" rows="4"/></td>
+                                <td class="dataCell">
+                                    <apex:selectCheckboxes value="{!item.Layouts}">
+                                        <apex:selectOptions value="{!LayoutOptions}"/>
+                                    </apex:selectCheckboxes>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                        <apex:outputPanel rendered="{!FieldInfoList.size == 0}" layout="none">
+                            <tr>
+                                <td colspan="8">No fields to display.</td>
+                            </tr>
+                        </apex:outputPanel>
+                    </tbody>
+                </table>
+
+                <apex:outputPanel rendered="{!FieldInfoList.size > 0}">
+                    <apex:pageBlockTable value="{!ProfileInfos}" var="item">
+                        <apex:column >
+                            <apex:facet name="header">Profile Name</apex:facet>
+                            <apex:outputText value="{!item.Label}"/>                         
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <input type="checkbox" name="visiableSelAll" onclick="checkVisiableSelAll(this)" class="visiableSelAll"/>
+                                Visibale
+                            </apex:facet>
+                            <apex:inputCheckbox value="{!item.Visiabled}" onclick="checkVisiable(this)" styleClass="visiable"/>
+                        </apex:column>
+                        <apex:column >
+                            <apex:facet name="header">
+                                <input type="checkbox" name="readOnlySelAll" onclick="checkReadOnlySelAll(this)" class="readOnlySelAll"/>
+                                Read Only
+                            </apex:facet>
+                            <apex:inputCheckbox value="{!item.ReadOnly}" onclick="checkReadOnly(this)" styleClass="readonly"/>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:outputPanel>
+                <div align="left" style="padding-left: 35%;">
+                    <apex:outputPanel id="buttonpanel"  rendered="{!FieldInfoList.size > 0}">
+                        <apex:commandButton value="Submit" action="{!submitFieldsForObject}" onclick="return checkForm(this);" styleClass="submit" style="margin-top: 15px;margin-bottom: 15px;" />
+                        <input type="hidden" class="submitFlag" value="false"/>
+                    </apex:outputPanel>
+                </div>
+            </apex:outputPanel>
+            <apex:actionStatus id="submitloading" layout="block">         
+            <apex:facet name="start">               
+                <div class="overlayBackground displayBG">
+                    <img src="/img/loading.gif" id="loading" class="loadingImg"/>
+                </div>
+            </apex:facet>
+        </apex:actionStatus>
+        </apex:pageBlock>
+        
+    </apex:form>
+</apex:page>
