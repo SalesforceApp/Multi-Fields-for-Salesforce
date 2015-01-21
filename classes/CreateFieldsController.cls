@@ -1,4 +1,4 @@
-public without sharing class AddFieldsToObjectsController 
+public without sharing class CreateFieldsController 
 {
 
     public String SelectedObjType {get; set;}
@@ -8,7 +8,7 @@ public without sharing class AddFieldsToObjectsController
     public Boolean SubmitCheck {get; set;}
     private List<String> tempLayouts;
 
-    public AddFieldsToObjectsController()
+    public CreateFieldsController()
     {
         FieldInfoList = new List<FieldInfo>();
         String tempStr = ApexPages.currentPage().getParameters().get('submitCheck');
@@ -55,7 +55,7 @@ public without sharing class AddFieldsToObjectsController
         }
         
         SubmitCheck = true;
-        PageReference resultPref = new PageReference('/apex/AddFieldsToObjects?submitCheck=true');
+        PageReference resultPref = new PageReference('/apex/CreateFields?submitCheck=true');
         resultPref.setRedirect(true);
         return resultPref;
 
@@ -226,36 +226,4 @@ public without sharing class AddFieldsToObjectsController
         }
         set;
     }
-
-    public class FieldInfo
-    {
-        public String Type {get; set;}
-        public String Label {get; set;}
-        public String Name {get; set;}
-        public String Length {get; set;}
-        public String HelpText {get; set;}
-        public String DefaultValue {get; set;}
-        public Boolean Required {get; set;}
-        public List<String> Layouts {get; set;}
-
-        public List<SelectOption> LayoutOptions {get; set;} 
-
-    }
-
-    public class ProfileWrapper
-    {
-        public String Label {get; set;}
-        public String ProfileName {get; set;}
-        public Boolean Visiabled {get; set;}
-        public Boolean ReadOnly {get; set;}
-
-        public ProfileWrapper(String profileName, String labelName, Boolean visiabled)
-        {
-            this.Label = labelName;
-            this.ProfileName = profileName;
-            this.Visiabled = visiabled;
-            ReadOnly = false;
-        }
-    }
-    
 }

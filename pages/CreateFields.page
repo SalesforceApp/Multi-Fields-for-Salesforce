@@ -1,4 +1,4 @@
-<apex:page controller="AddFieldsToObjectsController" tabStyle="Create_Fields__tab">
+<apex:page controller="CreateFieldsController" tabStyle="Create_Fields__tab">
     <script src="//code.jquery.com/jquery-1.9.1.js"></script>
     <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.18.3/js/jquery.metadata.js"></script>
