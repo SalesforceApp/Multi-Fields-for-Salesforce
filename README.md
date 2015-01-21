@@ -1,18 +1,14 @@
 # Multi-Fields for Salesforce
 
-# Introduction
-
-#Version 1.1
-
- # Features
-   Creates more text type to a salesforce object.
+# Features
+Creates more text type to a salesforce object(Version 1.1).
    
- # Installation URL
- https://login.salesforce.com/packaging/installPackage.apexp?p0=04t90000000Reqb
+# Installation URL
+https://login.salesforce.com/packaging/installPackage.apexp?p0=04t90000000Reqb(Version 1.1)
  
- #Screenshots
- * ![ScreenShot](https://github.com/SalesforceApp/Multi-Fields-for-Salesforce/blob/master/Imgs/1.png)
- * ![ScreenShot](https://github.com/SalesforceApp/Multi-Fields-for-Salesforce/blob/master/Imgs/2.png)
+# Screenshots
+* ![ScreenShot](https://github.com/SalesforceApp/Multi-Fields-for-Salesforce/blob/master/Imgs/1.png)
+* ![ScreenShot](https://github.com/SalesforceApp/Multi-Fields-for-Salesforce/blob/master/Imgs/2.png)
  
 *Please donate some money to our team if this package is useful for you. Our Paypal ID is samba.gao@hotmail.com.*
 
