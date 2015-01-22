@@ -1,7 +1,7 @@
 # Multi-Fields for Salesforce
 
 # Features
-Adds delete and clone function (Version 1.2)
+Adds delete and clone function (Version 1.2)                                                                                    
 Creates more text type to a salesforce object (Version 1.1)
 
 # Installation URL
