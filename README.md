@@ -9,6 +9,7 @@ https://login.salesforce.com/packaging/installPackage.apexp?p0=04t90000000Reqb (
 # Screenshots
 * ![ScreenShot](https://github.com/SalesforceApp/Multi-Fields-for-Salesforce/blob/master/Imgs/1.png)
 * ![ScreenShot](https://github.com/SalesforceApp/Multi-Fields-for-Salesforce/blob/master/Imgs/2.png)
+* ![ScreenShot](https://github.com/SalesforceApp/Multi-Fields-for-Salesforce/blob/master/Imgs/3.png)
  
 *Please donate some money to our team if this package is useful for you. Our Paypal ID is samba.gao@hotmail.com.*
 
