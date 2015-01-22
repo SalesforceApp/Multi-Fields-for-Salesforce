@@ -10,26 +10,12 @@ private class CreateFieldsControllerTest
         {
             if(request instanceof MetadataService.retrieve_element)
                 response.put('response_x', new MetadataService.retrieveResponse_element());
-            else if(request instanceof MetadataService.checkDeployStatus_element)
-                response.put('response_x', new MetadataService.checkDeployStatusResponse_element());
             else if(request instanceof MetadataService.listMetadata_element)
                 response.put('response_x', new MetadataService.listMetadataResponse_element());
-            else if(request instanceof MetadataService.checkRetrieveStatus_element)
-                response.put('response_x', new MetadataService.checkRetrieveStatusResponse_element());
-            else if(request instanceof MetadataService.describeMetadata_element)
-                response.put('response_x', new MetadataService.describeMetadataResponse_element());
-            else if(request instanceof MetadataService.deploy_element)
-                response.put('response_x', new MetadataService.deployResponse_element());
             else if(request instanceof MetadataService.updateMetadata_element)
                 response.put('response_x', new MetadataService.updateMetadataResponse_element());
-            else if(request instanceof MetadataService.renameMetadata_element)
-                response.put('response_x', new MetadataService.renameMetadataResponse_element());
-            else if(request instanceof  MetadataService.cancelDeploy_element)
-                response.put('response_x', new MetadataService.cancelDeployResponse_element());
             else if(request instanceof  MetadataService.deleteMetadata_element)
                 response.put('response_x', new MetadataService.deleteMetadataResponse_element());
-            else if(request instanceof  MetadataService.upsertMetadata_element)
-                response.put('response_x', new MetadataService.upsertMetadataResponse_element());
             else if(request instanceof  MetadataService.createMetadata_element)
                 response.put('response_x', new MetadataService.createMetadataResponse_element());
             return;
@@ -50,6 +36,13 @@ private class CreateFieldsControllerTest
 
         testController.changeObjectType();
         testController.addFieldToObject();
+        testController.FieldInfoList[0].Label = 'testLabel';
+        testController.FieldInfoList[0].Name = 'testName';
+        testController.FieldInfoList[0].Length = '44';
+        testController.FieldInfoList[0].Required = false;
+        List<String> layouts = new List<String>();
+        layouts.add('Account-Account Layout');
+        testController.FieldInfoList[0].Layouts = layouts;
         testController.submitFieldsForObject();
     }
 

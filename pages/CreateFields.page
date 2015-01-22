@@ -19,11 +19,10 @@
                 $(obj).val('Add Field');
             }
         }
-        function setAdvisedFieldName(obj) {
+        function setAdvisedFieldName(obj){
             var nameObj = $(obj).parent().parent().next().find("input");
             if(nameObj.val() == "") {
                 var tempName = $.trim($(obj).val());
-                //var resultName=tempName.replace(/\ +/g,"_");
                 var resultName=tempName.replace(/([~!@#$%^&*()_+=-`{}\[\]\|\\:;'<>,.\/? ])+/g,"_").replace(/^(_)+|(_)+$/g,'');
                 var firstChar = resultName.charAt(0);
                 var intRegex = /^\d+$/;
@@ -33,9 +32,18 @@
                 nameObj.val(resultName);
             }
         }
-
-        function checkFieldRequired(obj) {
-            if($(obj).is(':checked')) {
+        function checkRequiredFields(){
+            $(".requiredField").each(function(){
+                if($(this).is(':checked')){
+                    $(this).parent().next().next().find("input").each(function(){
+                        $(this).prop('checked', true);
+                        $(this).prop('disabled', true);
+                    });
+                };
+            });
+        }
+        function checkFieldRequired(obj){
+            if($(obj).is(':checked')){
                 $(obj).parent().next().next().find("input").each(function(){
                     $(this).prop('checked', true);
                     $(this).prop('disabled', true);
@@ -93,7 +101,7 @@
         $(document).ready(function(){
         
             $(".addFieldForm").validate();
-            $.validator.addMethod("notEqualTo",function(value,element,param) {        
+            $.validator.addMethod("notEqualTo",function(value,element,param){        
                 var count = 0;
                 $(param).each(function(){
                     if($(this).val() == value){
@@ -108,7 +116,7 @@
                 
                 },"There is already a field");
 
-            $.validator.addMethod("checkFieldName",function(value,element,param) {        
+            $.validator.addMethod("checkFieldName",function(value,element,param){        
                 
                 var firstChar = value.charAt(0);
                 var intRegex = /^\d+$/;
@@ -127,14 +135,14 @@
                 
                 return true;
                 
-                },"Error: The custom field name you provided 33 on object Account can only contain alphanumeric characters, must begin with a letter, cannot end with an underscore or contain two consecutive underscore characters, and must be unique across all Account fields");
+                },"Error: The custom field name you provided on object can only contain alphanumeric characters, must begin with a letter, cannot end with an underscore or contain two consecutive underscore characters, and must be unique across all Object fields");
          });
          
-        function checkForm(obj) {
-            if($(".addFieldForm").valid()) {
+        function checkForm(obj){
+            if($(".addFieldForm").valid()){
                 $(obj).val('Submit...');
                 $(obj).addClass('btnDisabled');
-                if($('.submitFlag').val() == 'true') {
+                if($('.submitFlag').val() == 'true'){
                     return false;
                 }
                 $('.submitFlag').val('true');
@@ -144,7 +152,7 @@
         }
     </script>
     <style>
-        .requiredInput label {
+        .requiredInput label{
             color: red;
             display:block;
             border:0px;
@@ -206,11 +214,18 @@
                     <tbody>
                         <apex:repeat value="{!FieldInfoList}" var="item" rendered="{!FieldInfoList.size > 0}">
                             <tr class="dataRow odd first" onblur="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onmouseover="if (window.hiOn){hiOn(this);}">
+                                <td scope="row" class="dataCell">
+                                    <apex:commandLink action="{!delNewRecordLine}" reRender="fieldlist" status="actionloading" onclick="alert('Are you sure?')" style="text-decoration:none;color:#015ba7">
+                                        <apex:outputText value="X" style="text-decoration: none;color: red;font-weight: bold;padding-left: 3px;font-size: 120%;"/>
+                                        <apex:param name="delIndex" value="{!item.FieldIndex}" assignTo="{!delNewRecordIndex}"/>
+                                    </apex:commandLink>
+                                </td>
                                 <td scope="row" class="dataCell"><apex:outputText value="{!item.Type}"/></td>
                                 <td class="dataCell">
                                     <div class="requiredInput">
                                         <div class="requiredBlock"></div>
                                         <apex:inputText id="fieldLabel" value="{!item.Label}" html-placeholder="Field Label" style="border: 2px inset;" onblur="setAdvisedFieldName(this)" styleClass="{required:true}" maxlength="40"/>
+                                        <input type="hidden" class="cctest" value="{!SelectedObjType}"/>
                                     </div>
                                 </td>
                                 <td class="dataCell">
@@ -226,12 +241,18 @@
                                     </div>
                                 </td>
                                 <td class="dataCell"><apex:inputText value="{!item.DefaultValue}" html-placeholder="Default Value"/></td>
-                                <td class="dataCell"><apex:inputCheckbox value="{!item.required}" onclick="checkFieldRequired(this)"/>Required</td>
+                                <td class="dataCell"><apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required</td>
                                 <td class="dataCell"><apex:inputTextarea value="{!item.HelpText}" html-placeholder="Help Text" cols="25" rows="4"/></td>
                                 <td class="dataCell">
                                     <apex:selectCheckboxes value="{!item.Layouts}">
                                         <apex:selectOptions value="{!LayoutOptions}"/>
                                     </apex:selectCheckboxes>
+                                </td>
+                                <td scope="row" class="dataCell">
+                                    <apex:commandLink action="{!cloneNewRecordLine}" reRender="fieldlist" status="actionloading" oncomplete="checkRequiredFields()" style="text-decoration:none;color:#015ba7;padding-top: 5px;padding-bottom: 5px;" styleClass="btn">
+                                        <apex:outputText value="Clone"/>
+                                        <apex:param name="cloneIndex" value="{!item.FieldIndex}" assignTo="{!cloneNewRecordIndex}"/>
+                                    </apex:commandLink>
                                 </td>
                             </tr>
                         </apex:repeat>
@@ -272,7 +293,7 @@
                     </apex:outputPanel>
                 </div>
             </apex:outputPanel>
-            <apex:actionStatus id="submitloading" layout="block">         
+            <apex:actionStatus id="actionloading" layout="block">         
             <apex:facet name="start">               
                 <div class="overlayBackground displayBG">
                     <img src="/img/loading.gif" id="loading" class="loadingImg"/>

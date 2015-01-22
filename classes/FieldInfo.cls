@@ -10,4 +10,6 @@ public class FieldInfo
     public List<String> Layouts {get; set;}
 
     public List<SelectOption> LayoutOptions {get; set;}
+
+    public Integer FieldIndex {get; set;}
 }

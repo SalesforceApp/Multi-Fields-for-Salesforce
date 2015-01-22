@@ -7,7 +7,8 @@ public without sharing class CreateFieldsController
     public List<String> Messages {get; set;}
     public Boolean SubmitCheck {get; set;}
     private List<String> tempLayouts;
-
+    public Integer delNewRecordIndex {get; set;}
+    public Integer cloneNewRecordIndex {get; set;}
     public CreateFieldsController()
     {
         FieldInfoList = new List<FieldInfo>();
@@ -35,8 +36,62 @@ public without sharing class CreateFieldsController
         }
 
         tempFieldInfo.Layouts = tempLayouts;
-
+        tempFieldInfo.FieldIndex = FieldInfoList.size();
         FieldInfoList.add(tempFieldInfo);
+    }
+
+    public void delNewRecordLine()
+    {
+        FieldInfoList.remove(delNewRecordIndex);
+        for(Integer i=0;i<FieldInfoList.size();i++)
+        {
+            FieldInfoList[i].FieldIndex = i;
+        }
+    }
+
+    public void cloneNewRecordLine()
+    {
+        FieldInfo  tempFieldInfo = FieldInfoList[cloneNewRecordIndex];
+        FieldInfo cloneFieldInfo = new FieldInfo();
+        cloneFieldInfo.Type = tempFieldInfo.Type;
+        cloneFieldInfo.Layouts = tempLayouts;
+        cloneFieldInfo.FieldIndex = FieldInfoList.size();
+
+        /*
+        public String Label {get; set;}
+        public String Name {get; set;}
+        public String Length {get; set;}
+        public String HelpText {get; set;}
+        public String DefaultValue {get; set;}
+        public Boolean Required {get; set;}
+        */
+        cloneFieldInfo.Label = tempFieldInfo.Label;
+
+        String tempName = tempFieldInfo.Name;
+        if(String.isNotBlank(tempName))
+        {
+            String endCharStr = tempName.trim().substring(tempName.trim().length() - 1, tempName.trim().length());
+            try
+            {
+                Integer x = Integer.valueOf(endCharStr);
+                cloneFieldInfo.Name = tempName.trim().substring(0, tempName.trim().length() - 1) + (x + 1);
+            }
+            Catch (exception e) 
+            {
+                cloneFieldInfo.Name = tempName.trim() + 2;
+            } 
+        }
+          
+        //cloneFieldInfo.Name = tempFieldInfo.Name;
+
+        cloneFieldInfo.Length = tempFieldInfo.Length;
+        cloneFieldInfo.HelpText = tempFieldInfo.HelpText;
+        cloneFieldInfo.DefaultValue = tempFieldInfo.DefaultValue;
+        cloneFieldInfo.Required = tempFieldInfo.Required;
+        cloneFieldInfo.Layouts = tempFieldInfo.Layouts;
+
+        FieldInfoList.add(cloneFieldInfo);
+        
     }
 
     public PageReference submitFieldsForObject()
