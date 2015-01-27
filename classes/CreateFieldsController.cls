@@ -22,13 +22,14 @@ public without sharing class CreateFieldsController
     public void changeObjectType()
     {
         FieldInfoList.clear();
-        tempLayouts = null;
+        LayoutOptions = null;
+        tempLayouts = MetadataServiceUtile.getLayoutNamesByObjName(SelectedObjType);
     }
 
     public void addFieldToObject()
     {
         FieldInfo tempFieldInfo = new FieldInfo();
-        tempFieldInfo.Type = 'Text';
+        tempFieldInfo.Type = SelectedFieldType;
         tempFieldInfo.Layouts = new List<String>();
         if(tempLayouts == null)
         {
@@ -37,6 +38,18 @@ public without sharing class CreateFieldsController
 
         tempFieldInfo.Layouts = tempLayouts;
         tempFieldInfo.FieldIndex = FieldInfoList.size();
+
+        if(tempFieldInfo.Type == 'Checkbox')
+        {
+            tempFieldInfo.DefaultValue = 'false';
+            tempFieldInfo.Required = false;
+        }
+        else if(tempFieldInfo.Type == 'LongTextArea')
+        {
+            tempFieldInfo.Length = 32768 + '';
+            tempFieldInfo.Required = false;
+        }
+
         FieldInfoList.add(tempFieldInfo);
     }
 
@@ -57,14 +70,6 @@ public without sharing class CreateFieldsController
         cloneFieldInfo.Layouts = tempLayouts;
         cloneFieldInfo.FieldIndex = FieldInfoList.size();
 
-        /*
-        public String Label {get; set;}
-        public String Name {get; set;}
-        public String Length {get; set;}
-        public String HelpText {get; set;}
-        public String DefaultValue {get; set;}
-        public Boolean Required {get; set;}
-        */
         cloneFieldInfo.Label = tempFieldInfo.Label;
 
         String tempName = tempFieldInfo.Name;
@@ -82,8 +87,6 @@ public without sharing class CreateFieldsController
             } 
         }
           
-        //cloneFieldInfo.Name = tempFieldInfo.Name;
-
         cloneFieldInfo.Length = tempFieldInfo.Length;
         cloneFieldInfo.HelpText = tempFieldInfo.HelpText;
         cloneFieldInfo.DefaultValue = tempFieldInfo.DefaultValue;
@@ -188,6 +191,18 @@ public without sharing class CreateFieldsController
         set;
     }
     
+    public List<SelectOption> BooleanOptions
+    {
+        get
+        {
+            BooleanOptions = new List<SelectOption>();
+            BooleanOptions.add(new SelectOption('true', 'Checked'));
+            BooleanOptions.add(new SelectOption('false', 'Unchecked'));
+            
+            return BooleanOptions;
+        }
+        set;
+    }
 
     public List<SelectOption> LayoutOptions
     {
@@ -218,7 +233,7 @@ public without sharing class CreateFieldsController
                 ObjectTypeOptions = new List<SelectOption>();
 
                 ObjectTypeOptions.add(new SelectOption('account', 'Account'));
-                ObjectTypeOptions.add(new SelectOption('contant', 'Contact'));
+                ObjectTypeOptions.add(new SelectOption('contact', 'Contact'));
                 ObjectTypeOptions.add(new SelectOption('lead', 'Lead'));
                 ObjectTypeOptions.add(new SelectOption('case', 'Case'));
                 ObjectTypeOptions.add(new SelectOption('task', 'Task'));
@@ -269,8 +284,8 @@ public without sharing class CreateFieldsController
                 FieldTypeOptions.add(new SelectOption('Phone', 'Phone'));
                 FieldTypeOptions.add(new SelectOption('Picklist', 'Picklist'));
                 FieldTypeOptions.add(new SelectOption('Picklist (Multi-Select)', 'Picklist (Multi-Select)'));
-                FieldTypeOptions.add(new SelectOption('Text Area', 'Text Area'));
-                FieldTypeOptions.add(new SelectOption('Text Area (Long)', 'Text Area (Long)'));
+                FieldTypeOptions.add(new SelectOption('TextArea', 'Text Area'));
+                FieldTypeOptions.add(new SelectOption('LongTextArea', 'Text Area (Long)'));
                 FieldTypeOptions.add(new SelectOption('Text Area (Rich)', 'Text Area (Rich)'));
                 FieldTypeOptions.add(new SelectOption('Text (Encrypted)', 'Text (Encrypted)'));
                 FieldTypeOptions.add(new SelectOption('URL', 'URL'));

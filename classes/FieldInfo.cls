@@ -12,4 +12,6 @@ public class FieldInfo
     public List<SelectOption> LayoutOptions {get; set;}
 
     public Integer FieldIndex {get; set;}
+    public String Scale {get; set;}
+    public String VisibleLines {get; set;}
 }

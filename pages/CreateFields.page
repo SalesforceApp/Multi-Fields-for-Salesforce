@@ -4,6 +4,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.18.3/js/jquery.metadata.js"></script>
     <script type="text/javascript">
 
+
         if({!SubmitCheck}){
             alert("Submitted successfully");
         }
@@ -23,7 +24,7 @@
             var nameObj = $(obj).parent().parent().next().find("input");
             if(nameObj.val() == "") {
                 var tempName = $.trim($(obj).val());
-                var resultName=tempName.replace(/([~!@#$%^&*()_+=-`{}\[\]\|\\:;'<>,.\/? ])+/g,"_").replace(/^(_)+|(_)+$/g,'');
+                var resultName=tempName.replace(/([~!@#$%^&*()_+=\-`{}\[\]\|\\:;'<>,.\/? ])+/g,"_").replace(/^(_)+|(_)+$/g,'');
                 var firstChar = resultName.charAt(0);
                 var intRegex = /^\d+$/;
                 if(intRegex.test(firstChar)){
@@ -99,6 +100,9 @@
         }
 
         $(document).ready(function(){
+            $(".tableHead").each(function(){
+                $(this).remove();
+            });
         
             $(".addFieldForm").validate();
             $.validator.addMethod("notEqualTo",function(value,element,param){        
@@ -115,6 +119,26 @@
                 }
                 
                 },"There is already a field");
+
+            $.validator.addMethod("checkNumberLength",function(value,element,param){
+                var fieldLength = Number(value);
+                var places = Number($(element).parent().parent().next().find("input").val());
+                if(fieldLength + places > param){
+                    return false;
+                }
+                return true;
+                
+                },"Error: The sum of the length and decimal places must be an integer less than or equal to 18");
+
+            $.validator.addMethod("checkNumberPlaces",function(value,element,param){
+                var places = Number(value);
+                var fieldLength = Number($(element).parent().parent().prev().find("input").val());
+                if(fieldLength + places > param){
+                    return false;
+                }
+                return true;
+                
+                },"Error: The sum of the length and decimal places must be an integer less than or equal to 18");
 
             $.validator.addMethod("checkFieldName",function(value,element,param){        
                 
@@ -154,11 +178,14 @@
     <style>
         .requiredInput label{
             color: red;
-            display:block;
-            border:0px;
+            display: block;
+            border: 0px;
         }
         .apexp .bPageBlock .error{
-            border:0px;
+            border: 0px;
+        }
+        label.error{
+            color: red;
         }
 
         .displayBG{
@@ -210,59 +237,106 @@
             </apex:pageblockSection>
             <apex:outputPanel id="fieldlist">
                 <br/>
-                <table class="list" border="0" cellpadding="0" cellspacing="0" >
-                    <tbody>
-                        <apex:repeat value="{!FieldInfoList}" var="item" rendered="{!FieldInfoList.size > 0}">
-                            <tr class="dataRow odd first" onblur="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onmouseover="if (window.hiOn){hiOn(this);}">
-                                <td scope="row" class="dataCell">
-                                    <apex:commandLink action="{!delNewRecordLine}" reRender="fieldlist" status="actionloading" onclick="alert('Are you sure?')" style="text-decoration:none;color:#015ba7">
-                                        <apex:outputText value="X" style="text-decoration: none;color: red;font-weight: bold;padding-left: 3px;font-size: 120%;"/>
-                                        <apex:param name="delIndex" value="{!item.FieldIndex}" assignTo="{!delNewRecordIndex}"/>
-                                    </apex:commandLink>
-                                </td>
-                                <td scope="row" class="dataCell"><apex:outputText value="{!item.Type}"/></td>
-                                <td class="dataCell">
-                                    <div class="requiredInput">
-                                        <div class="requiredBlock"></div>
-                                        <apex:inputText id="fieldLabel" value="{!item.Label}" html-placeholder="Field Label" style="border: 2px inset;" onblur="setAdvisedFieldName(this)" styleClass="{required:true}" maxlength="40"/>
-                                        <input type="hidden" class="cctest" value="{!SelectedObjType}"/>
-                                    </div>
-                                </td>
-                                <td class="dataCell">
-                                    <div class="requiredInput">
-                                        <div class="requiredBlock"></div>
-                                        <apex:inputText id="fieldName" value="{!item.Name}" html-placeholder="Field Name" styleClass="{required:true,notEqualTo:'[id$=\'fieldName\']',checkFieldName:true}" style="border: 2px inset;"  maxlength="40"/>
-                                    </div>
-                                </td>
-                                <td class="dataCell">
-                                    <div class="requiredInput">
-                                        <div class="requiredBlock"></div>
-                                        <apex:inputText value="{!item.Length}" html-placeholder="Length" maxlength="255" style="border: 2px inset;" styleClass="{required:true,range:[1,255]}" onkeyup="this.value=this.value.replace(/\D/g,'')"/>
-                                    </div>
-                                </td>
-                                <td class="dataCell"><apex:inputText value="{!item.DefaultValue}" html-placeholder="Default Value"/></td>
-                                <td class="dataCell"><apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required</td>
-                                <td class="dataCell"><apex:inputTextarea value="{!item.HelpText}" html-placeholder="Help Text" cols="25" rows="4"/></td>
-                                <td class="dataCell">
-                                    <apex:selectCheckboxes value="{!item.Layouts}">
-                                        <apex:selectOptions value="{!LayoutOptions}"/>
-                                    </apex:selectCheckboxes>
-                                </td>
-                                <td scope="row" class="dataCell">
-                                    <apex:commandLink action="{!cloneNewRecordLine}" reRender="fieldlist" status="actionloading" oncomplete="checkRequiredFields()" style="text-decoration:none;color:#015ba7;padding-top: 5px;padding-bottom: 5px;" styleClass="btn">
-                                        <apex:outputText value="Clone"/>
-                                        <apex:param name="cloneIndex" value="{!item.FieldIndex}" assignTo="{!cloneNewRecordIndex}"/>
-                                    </apex:commandLink>
-                                </td>
-                            </tr>
-                        </apex:repeat>
-                        <apex:outputPanel rendered="{!FieldInfoList.size == 0}" layout="none">
-                            <tr>
-                                <td colspan="8">No fields to display.</td>
-                            </tr>
-                        </apex:outputPanel>
-                    </tbody>
-                </table>
+                <!-->**<-->
+                <apex:pageBlockTable value="{!FieldInfoList}" var="item" headerClass="tableHead">
+                    <apex:column rendered="{!FieldInfoList.size > 0}">
+                        <apex:commandLink action="{!delNewRecordLine}" reRender="fieldlist" status="actionloading" onclick="alert('Are you sure?')" style="text-decoration:none;color:#015ba7">
+                            <apex:outputText value="X" style="text-decoration: none;color: red;font-weight: bold;padding-left: 3px;font-size: 120%;"/>
+                            <apex:param name="delIndex" value="{!item.FieldIndex}" assignTo="{!delNewRecordIndex}"/>
+                        </apex:commandLink>
+                    </apex:column>
+                    <apex:column>
+                        <apex:outputText value="{!item.Type}"/>
+                    </apex:column>
+                    <apex:column>
+                        <div class="requiredInput">
+                            <div class="requiredBlock"></div>
+                            <apex:inputText id="fieldLabel" value="{!item.Label}" html-placeholder="Field Label" style="border: 2px inset;" onblur="setAdvisedFieldName(this)" styleClass="{required:true}" maxlength="40"/>
+                            <input type="hidden" class="cctest" value="{!SelectedObjType}"/>
+                        </div>
+                    </apex:column>
+                    <apex:column>
+                        <div class="requiredInput">
+                            <div class="requiredBlock"></div>
+                            <apex:inputText id="fieldName" value="{!item.Name}" html-placeholder="Field Name" styleClass="{required:true,notEqualTo:'[id$=\'fieldName\']',checkFieldName:true}" style="border: 2px inset;"  maxlength="40"/>
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Text'}">
+                        <div class="requiredInput">
+                            <div class="requiredBlock"></div>
+                            <apex:inputText value="{!item.Length}" html-placeholder="Length" maxlength="255" style="border: 2px inset;" styleClass="{required:true,range:[1,255]}" onkeyup="this.value=this.value.replace(/\D/g,'')"/>
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Text'}" colspan="2">
+                        <apex:inputText value="{!item.DefaultValue}" html-placeholder="Default Value" />
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Text'}">
+                        <apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'TextArea'}" colspan="3">
+                        <apex:inputTextarea value="{!item.DefaultValue}" html-placeholder="Default Value" cols="25" rows="4"/>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'TextArea'}">
+                        <apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Checkbox'}" colspan="4">
+                        <apex:selectRadio id="selectRadio" value="{!item.DefaultValue}">
+                            <apex:selectOptions value="{!BooleanOptions}"/>
+                        </apex:selectRadio>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Number' || item.Type == 'Currency' || item.Type == 'Percent'}">
+                        <div class="requiredInput">
+                            <div class="requiredBlock"></div>
+                            <apex:inputText value="{!item.Length}" html-placeholder="Length" maxlength="18" style="border: 2px inset;" styleClass="{required:true,range:[1,18],checkNumberLength:18}" onkeyup="this.value=this.value.replace(/\D/g,'')"/>
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Number' || item.Type == 'Currency' || item.Type == 'Percent'}">
+                        <div  class="requiredInput">
+                            <div class="requiredBlock"></div>
+                            <apex:inputText value="{!item.Scale}" html-placeholder="Decimal Places" maxlength="18" style="border: 2px inset;" styleClass="{required:true,range:[0,18],checkNumberPlaces:18}" onkeyup="this.value=this.value.replace(/\D/g,'')"/>
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Number' || item.Type == 'Currency' || item.Type == 'Percent'}">
+                        <apex:inputText value="{!item.DefaultValue}" html-placeholder="Default Value" styleClass="{number:true}" style="border: 2px inset"/>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Number' || item.Type == 'Currency' || item.Type == 'Percent'}">
+                        <apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'LongTextArea'}">
+                        <div class="requiredInput">
+                            <div class="requiredBlock"></div>
+                            <apex:inputText value="{!item.VisibleLines}" html-placeholder="# Visible Lines" maxlength="50" style="border: 2px inset;" styleClass="{required:true,range:[2,50]}" onkeyup="this.value=this.value.replace(/\D/g,'')"/>
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'LongTextArea'}" colspan="2">
+                        <div style="width: 170px;">
+                        Length&nbsp; <apex:inputText value="{!item.Length}" maxlength="131072" style="border: 2px inset;" styleClass="{required:true,range:[255,131072]}" onkeyup="this.value=this.value.replace(/\D/g,'')"/>
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'LongTextArea'}">
+                        <apex:inputTextarea value="{!item.DefaultValue}" html-placeholder="Default Value" cols="25" rows="4"/>
+                    </apex:column>
+
+                    <apex:column>
+                        <apex:inputTextarea value="{!item.HelpText}" html-placeholder="Help Text" cols="25" rows="4"/>
+                    </apex:column>
+                    <apex:column>
+                        <apex:selectCheckboxes value="{!item.Layouts}">
+                            <apex:selectOptions value="{!LayoutOptions}"/>
+                        </apex:selectCheckboxes>
+                    </apex:column>
+                    <apex:column>
+                        <apex:commandLink action="{!cloneNewRecordLine}" reRender="fieldlist" status="actionloading" oncomplete="checkRequiredFields()" style="text-decoration:none;color:#015ba7;padding-top: 5px;padding-bottom: 5px;" styleClass="btn">
+                            <apex:outputText value="Clone"/>
+                            <apex:param name="cloneIndex" value="{!item.FieldIndex}" assignTo="{!cloneNewRecordIndex}"/>
+                        </apex:commandLink>
+                    </apex:column>
+                </apex:pageBlockTable>
+                <apex:outputPanel rendered="{!FieldInfoList.size == 0}">
+                    <div style="margin-bottom: 10px;margin-top: 5px;">
+                    <apex:outputText value="No fields to display."/>
+                    </div>
+                </apex:outputPanel>
 
                 <apex:outputPanel rendered="{!FieldInfoList.size > 0}">
                     <apex:pageBlockTable value="{!ProfileInfos}" var="item">
@@ -292,6 +366,10 @@
                         <input type="hidden" class="submitFlag" value="false"/>
                     </apex:outputPanel>
                 </div>
+
+                <script type="text/javascript">
+                $(".tableHead").each(function(){ $(this).remove(); });
+                </script>
             </apex:outputPanel>
             <apex:actionStatus id="actionloading" layout="block">         
             <apex:facet name="start">               

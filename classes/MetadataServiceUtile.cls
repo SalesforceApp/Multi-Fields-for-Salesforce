@@ -1,5 +1,5 @@
 public with sharing class MetadataServiceUtile 
-{
+{   
     public static List<String> getProfileNames()
     {
         List<String> profileNames = new List<String>();
@@ -111,15 +111,65 @@ public with sharing class MetadataServiceUtile
         List<MetadataService.Metadata> metadataFieldList = new List<MetadataService.Metadata>();
         for(FieldInfo item : fieldInfoList)
         {
-            MetadataService.CustomField customField = new MetadataService.CustomField();
-            customField.fullName = objTypeName + '.' + item.Name + '__c';
-            customField.label = item.Label;
-            customField.type_x = item.Type;
-            customField.length = Integer.valueOf(item.Length);
-            customField.defaultValue = '"' + item.DefaultValue + '"';
-            customField.inlineHelpText = item.HelpText;
-            customField.required = item.Required;
-            metadataFieldList.add(customField);
+            if(item.Type == 'Text')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.length = Integer.valueOf(item.Length);
+                customField.defaultValue = '"' + item.DefaultValue + '"';
+                customField.inlineHelpText = item.HelpText;
+                customField.required = item.Required;
+                metadataFieldList.add(customField);
+            }
+            else if(item.Type == 'TextArea')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.defaultValue = '"' + item.DefaultValue + '"';
+                customField.inlineHelpText = item.HelpText;
+                customField.required = item.Required;
+                metadataFieldList.add(customField);
+            }
+            else if(item.Type == 'Checkbox')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.defaultValue = item.DefaultValue;
+                customField.inlineHelpText = item.HelpText;
+                metadataFieldList.add(customField);
+            }
+            else if(item.Type == 'Number' || item.Type == 'Currency' || item.Type == 'Percent')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.defaultValue = item.DefaultValue;
+                customField.inlineHelpText = item.HelpText;
+                customField.required = item.Required;
+                customField.precision = Integer.valueOf(item.Length);
+                customField.scale = Integer.valueOf(item.Scale);
+                metadataFieldList.add(customField);
+            }
+            else if(item.Type == 'LongTextArea')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.length = Integer.valueOf(item.Length);
+                customField.defaultValue = '"' + item.DefaultValue + '"';
+                customField.inlineHelpText = item.HelpText;
+                customField.visibleLines = Integer.valueOf(item.VisibleLines);
+                metadataFieldList.add(customField);
+            }
+            
 
             if(recordCount > 10 && metadataFieldList.size() == 10)
             {
@@ -220,7 +270,7 @@ public with sharing class MetadataServiceUtile
             }
 
         }
-        //
+        
         for(FieldInfo item : fieldInfoList)
         {
             if((!item.Required) && item.Layouts != null && item.Layouts.size() > 0)
