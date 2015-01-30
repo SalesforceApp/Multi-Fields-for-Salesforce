@@ -1,7 +1,7 @@
 # Multi-Fields for Salesforce
 
 # Features
-Adds some types to the package and Delete Fields tab (Version 1.3)
+Adds some types to the package and Delete Fields tab (Version 1.3)                                                             
 Adds delete and clone function for the every types (Version 1.2)                                                                
 Creates more text type to a salesforce object (Version 1.1)
 
