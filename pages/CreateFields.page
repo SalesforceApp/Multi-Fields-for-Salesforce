@@ -99,6 +99,15 @@
             }
         }
 
+        function changeRelatedTo(obj){
+            var selectedValue = $(obj).find("option:selected").text();
+            if(selectedValue != "--None--"){
+                $(obj).parent().parent().parent().parent().parent().prev().prev().find("input").val(selectedValue);
+            }else{
+                $(obj).parent().parent().parent().parent().parent().prev().prev().find("input").val(null);
+            }
+        }
+
         $(document).ready(function(){
             $(".tableHead").each(function(){
                 $(this).remove();
@@ -316,7 +325,82 @@
                     <apex:column rendered="{!item.Type == 'LongTextArea'}">
                         <apex:inputTextarea value="{!item.DefaultValue}" html-placeholder="Default Value" cols="25" rows="4"/>
                     </apex:column>
+                    <apex:column rendered="{!item.Type == 'Picklist'}" colspan="1">
+                        <div class="requiredInput">
+                            <div class="requiredBlock"></div>
+                            <apex:inputTextarea value="{!item.PicklistValues}" html-placeholder="Enter values for the picklist, with each value separated by a new line." cols="25" rows="4" styleClass="{required:true}" style="border: 1px solid;"/>
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Picklist'}" colspan="2">
+                        <div>
+                            <apex:inputCheckbox value="{!item.SortValuesForPicklist}" styleClass="requiredField"/>Sort values alphabetically
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Picklist'}">
+                        <div style="width: 100px;">
+                            <apex:inputCheckbox value="{!item.FirstValueDefaultValueForPicklist}" styleClass="requiredField"/>Use first value as default value
+                        </div>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Date' || item.Type == 'DateTime'}" colspan="3">
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Date' || item.Type == 'DateTime'}">
+                        <apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Phone' || item.Type == 'Url'}" colspan="3">
+                        <apex:inputText value="{!item.DefaultValue}" html-placeholder="Default Value" />
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Phone' || item.Type == 'Url'}">
+                        <apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Email'}">
+                        <apex:inputText value="{!item.DefaultValue}" html-placeholder="Default Value" styleClass="{email:true}" style="border: 2px inset"/>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Email'}" colspan="2">
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Email'}">
+                        <apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required
+                    </apex:column>
 
+                    <apex:column rendered="{!item.Type == 'Lookup'}">
+                        <table>
+                            <tr>
+                                <td>Related To</td>
+                                <td>
+                                    <apex:selectList value="{!item.ReferenceTo}" size="1" id="relatedTo" onchange="changeRelatedTo(this)" style="float: right;border :1px solid rgb(166, 166, 166)" styleClass="{required:true}">
+                                        <apex:selectOptions value="{!RelatedToOptions}" />
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            
+                        </table>
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Lookup'}" colspan="2">
+                        <table>
+                            <tr>
+                                <td>Related List Label</td>
+                                <td>
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"></div>
+                                        <apex:inputText value="{!item.RelationshipLabel}" html-placeholder="Related List Label" styleClass="{required:true}" style="border: 2px inset;"  maxlength="40"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Child Relationship Name</td>
+                                <td>
+                                    <div class="requiredInput">
+                                        <div class="requiredBlock"></div>
+                                        <apex:inputText value="{!item.RelationshipName}" html-placeholder="Child Relationship Name" styleClass="{required:true}" style="border: 2px inset;"  maxlength="40"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>    
+ 
+                    </apex:column>
+                    <apex:column rendered="{!item.Type == 'Lookup'}">
+                        <apex:inputCheckbox value="{!item.required}" styleClass="requiredField" onclick="checkFieldRequired(this)"/>Required
+                    </apex:column>
+                        
                     <apex:column>
                         <apex:inputTextarea value="{!item.HelpText}" html-placeholder="Help Text" cols="25" rows="4"/>
                     </apex:column>

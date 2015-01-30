@@ -14,4 +14,12 @@ public class FieldInfo
     public Integer FieldIndex {get; set;}
     public String Scale {get; set;}
     public String VisibleLines {get; set;}
+
+    public Boolean SortValuesForPicklist {get; set;}
+    public Boolean FirstValueDefaultValueForPicklist {get; set;}
+    public String PicklistValues {get; set;}
+
+    public String ReferenceTo {get; set;}
+    public String RelationshipLabel {get; set;}
+    public String RelationshipName {get; set;}
 }

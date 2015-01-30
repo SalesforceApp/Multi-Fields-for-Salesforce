@@ -1,0 +1,90 @@
+<apex:page showHeader="true" sidebar="true" controller="DeleteFieldsController">
+<script src="//code.jquery.com/jquery-1.9.1.js"></script>
+<style type="text/css">
+	
+	.displayBG{
+        border: none;
+        width: 100%;
+        height: 100%;
+        display: block;
+        position: fixed;
+         text-align: center;
+    }
+    .loadingImg{
+        height: 20px;
+        width: 20px;
+        margin-top: 300px;        
+    }
+</style>
+<script type="text/javascript">
+	
+	function checkSelAll(obj){
+        if($(obj).is(':checked')){
+            $('.oneRecord').each(function(){
+                $(this).prop('checked', true);
+            });
+        }else{
+            $('.oneRecord').each(function(){
+                $(this).prop('checked', false);
+            });
+        }
+    }
+</script>
+	<apex:sectionHeader subtitle="Delete Fields for the Objects" title="Delete fields from the Object"/>
+    <apex:form>
+        <apex:pageBlock mode="edit">
+            <apex:pageBlockTable value="{!Messages}" var="item" id="errorMessages">
+                <apex:column value="{!item}" style="color: #c00;"/>
+            </apex:pageBlockTable>
+            <div style="margin-top: 15px;margin-bottom: 15px;">
+	            <apex:pageblockSection columns="1">
+	                <apex:pageBlockSectionItem>
+	                    <apex:outputLabel value="Select Object" for="selectobj"/>
+	                    <apex:outputPanel >
+	                        <apex:selectList value="{!SelectedObjType}" size="1" id="selectobj" onchange="changeObjectTypeJS()">
+	                            <apex:selectOptions value="{!ObjectTypeOptions}" />
+	                        </apex:selectList>
+	                        <apex:actionStatus id="ObjStatus" >
+	                            <apex:facet name="start"><img src="/img/loading.gif" alt="loading" /></apex:facet>
+	                        </apex:actionStatus>
+	                    </apex:outputPanel>
+	                </apex:pageBlockSectionItem>
+	                <apex:actionFunction action="{!changeObjectType}" name="changeObjectTypeJS" reRender="fieldlist" status="ObjStatus"/>
+	                
+	            </apex:pageblockSection>
+            </div>
+            <apex:outputPanel  id="fieldlist">
+	            <apex:pageBlockTable value="{!FieldInfoList}" var="item" rendered="{!FieldInfoList.size > 0}">
+	            	<apex:column>
+	            		<apex:facet name="header">
+	                        <input type="checkbox" name="selAll" onclick="checkSelAll(this)" class="selAll"/>
+	                    </apex:facet>
+	            		<apex:inputCheckbox value="{!item.IsSelected}" styleClass="oneRecord"/>
+	            	</apex:column>
+	                <apex:column headerValue="Label" value="{!item.Label}"/>
+	                <apex:column headerValue="Name" value="{!item.Name}"/>
+	                <apex:column headerValue="Type" value="{!item.Type}"/>
+	            </apex:pageBlockTable>
+	            <apex:outputPanel rendered="{!FieldInfoList.size == 0}">
+                    <div style="margin-bottom: 10px;margin-top: 5px;">
+                    <apex:outputText value="No Custom fields to display."/>
+                    </div>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!FieldInfoList.size > 0}">
+	                <div align="left" style="padding-left: 35%;">
+		                <apex:commandButton value="Delete Selected" action="{!deleteFields}" style="margin-top: 15px;margin-bottom: 15px;" status="actionloading" reRender="fieldlist,errorMessages"/>
+			        </div>
+		        </apex:outputPanel>
+            </apex:outputPanel>
+            
+        </apex:pageBlock>
+        
+        <apex:actionStatus id="actionloading" layout="block">         
+            <apex:facet name="start">               
+                <div class="overlayBackground displayBG">
+                    <img src="/img/loading.gif" id="loading" class="loadingImg"/>
+                </div>
+            </apex:facet>
+        </apex:actionStatus>
+    </apex:form>
+</apex:page>

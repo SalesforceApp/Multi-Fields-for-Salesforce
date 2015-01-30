@@ -47,15 +47,43 @@ public with sharing class MetadataServiceUtile
             {
                 layout.layoutSections = new List<MetadataService.LayoutSection>();
             }
+            MetadataService.LayoutSection newLayoutSection = layout.layoutSections[0];
 
-            MetadataService.LayoutSection newLayoutSection = new MetadataService.LayoutSection();
-            newLayoutSection.style = 'OneColumn';
-            MetadataService.LayoutColumn newLayoutColumn = new MetadataService.LayoutColumn();
-            MetadataService.LayoutItem newLayoutItem = new MetadataService.LayoutItem();
-            newLayoutItem.field = fieldName;
-            newLayoutColumn.layoutItems = new List<MetadataService.LayoutItem> { newLayoutItem }; 
-            newLayoutSection.layoutColumns = new List<MetadataService.LayoutColumn> { newLayoutColumn };        
-            layout.layoutSections.add(newLayoutSection);  
+            if(newLayoutSection == null)
+            {
+                newLayoutSection = new MetadataService.LayoutSection();
+                newLayoutSection.style = 'OneColumn';
+                newLayoutSection.label = 'Extra Fields';
+                newLayoutSection.editHeading = true;
+                MetadataService.LayoutColumn newLayoutColumn = new MetadataService.LayoutColumn();
+                MetadataService.LayoutItem newLayoutItem = new MetadataService.LayoutItem();
+                newLayoutItem.field = fieldName;
+                newLayoutColumn.layoutItems = new List<MetadataService.LayoutItem> { newLayoutItem }; 
+                newLayoutSection.layoutColumns = new List<MetadataService.LayoutColumn> { newLayoutColumn };        
+                layout.layoutSections.add(newLayoutSection);  
+            }
+            else
+            {
+                if(newLayoutSection.layoutColumns == null)
+                {
+                    newLayoutSection.layoutColumns = new List<MetadataService.LayoutColumn>();
+                    
+                }
+
+                if(newLayoutSection.layoutColumns.size() == 0)
+                {
+                    newLayoutSection.layoutColumns.add(new MetadataService.LayoutColumn());
+                }
+
+                if(newLayoutSection.layoutColumns[0].layoutItems == null)
+                {
+                    newLayoutSection.layoutColumns[0].layoutItems = new List<MetadataService.LayoutItem>();
+                }
+                MetadataService.LayoutItem newLayoutItem = new MetadataService.LayoutItem();
+                newLayoutItem.field = fieldName;
+                newLayoutSection.layoutColumns[0].layoutItems.add(newLayoutItem);
+            }
+            
         }
                     
         List<MetadataService.SaveResult> results =  service.updateMetadata(layouts);
@@ -84,7 +112,11 @@ public with sharing class MetadataServiceUtile
             {
                 if(fieldItemFillName.equalsIgnoreCase(item.fullName))
                 {
-                    fieldsExistInfos.add('Error:There is already a field named ' + fieldItem.Name + ' on ' + objTypeName);
+                    String tempStr = objTypeName;
+                    String firstCharUpperStr = tempStr.substring(0, 1).toUpperCase();
+                    String catchStr = tempStr.substring(1);
+                    tempStr = firstCharUpperStr + catchStr;
+                    fieldsExistInfos.add('Error:There is already a field named ' + fieldItem.Name + ' on ' + tempStr);
                     break;
                 }
             }
@@ -169,7 +201,86 @@ public with sharing class MetadataServiceUtile
                 customField.visibleLines = Integer.valueOf(item.VisibleLines);
                 metadataFieldList.add(customField);
             }
-            
+            else if(item.Type == 'Picklist')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                Metadataservice.Picklist pt = new Metadataservice.Picklist();
+                pt.sorted= item.SortValuesForPicklist;
+
+                List<String> picklistValueStrList = item.PicklistValues.split('\\r?\\n', 0);
+                if(item.SortValuesForPicklist)
+                {
+                    picklistValueStrList.sort();
+                }
+                List<Metadataservice.PicklistValue> picklistValueList = new List<Metadataservice.PicklistValue>();
+                for(Integer i = 0;i < picklistValueStrList.size();i++)
+                {
+                    Metadataservice.PicklistValue tempPicklistValue = new Metadataservice.PicklistValue();
+                    tempPicklistValue.fullName= picklistValueStrList[i];
+                    if(i == 0)
+                    {
+                        tempPicklistValue.default_x= item.FirstValueDefaultValueForPicklist;
+                    }
+                    else
+                    {
+                        tempPicklistValue.default_x= false; 
+                    }
+                    picklistValueList.add(tempPicklistValue);
+                }
+                pt.picklistValues = picklistValueList;
+                customField.picklist = pt;
+                customField.inlineHelpText = item.HelpText;
+                metadataFieldList.add(customField);
+
+            }
+            else if(item.Type == 'Date' || item.Type == 'DateTime')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.inlineHelpText = item.HelpText;
+                customField.required = item.Required;
+                metadataFieldList.add(customField);
+            }
+            else if(item.Type == 'Phone' || item.Type == 'Url')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.inlineHelpText = item.HelpText;
+                customField.required = item.Required;
+                customField.defaultValue = '"' + item.DefaultValue + '"';
+                metadataFieldList.add(customField);
+            }
+            else if(item.Type == 'Email')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.inlineHelpText = item.HelpText;
+                customField.required = item.Required;
+                customField.defaultValue = '"' + item.DefaultValue + '"';
+                metadataFieldList.add(customField);
+            }
+            else if(item.Type == 'Lookup')
+            {
+                MetadataService.CustomField customField = new MetadataService.CustomField();
+                customField.fullName = objTypeName + '.' + item.Name + '__c';
+                customField.label = item.Label;
+                customField.type_x = item.Type;
+                customField.relationshipLabel = item.RelationshipLabel;
+                customField.relationshipName = item.RelationshipName;
+                customField.referenceTo = item.ReferenceTo;
+                customField.inlineHelpText = item.HelpText;
+                customField.required = item.Required;
+                metadataFieldList.add(customField);
+            }
 
             if(recordCount > 10 && metadataFieldList.size() == 10)
             {
@@ -233,7 +344,7 @@ public with sharing class MetadataServiceUtile
                     tempProfile.fieldPermissions.add(fieldSec);
                 }
                 profileList.add(tempProfile);
-                if(visProfileCount > 3 && profileList.size() == 3)
+                if(visProfileCount > 10 && profileList.size() == 10)
                 {
                     List<MetadataService.SaveResult> results =  service.updateMetadata(profileList);
                     
@@ -250,9 +361,9 @@ public with sharing class MetadataServiceUtile
                     }
                     
                     profileList.clear();
-                    visProfileCount = visProfileCount - 3;
+                    visProfileCount = visProfileCount - 10;
                 }
-                else if(visProfileCount <= 3 && profileList.size() == visProfileCount)
+                else if(visProfileCount <= 10 && profileList.size() == visProfileCount)
                 {
                     List<MetadataService.SaveResult> results =  service.updateMetadata(profileList);
                     if(Test.isRunningTest())
@@ -270,7 +381,7 @@ public with sharing class MetadataServiceUtile
             }
 
         }
-        
+
         for(FieldInfo item : fieldInfoList)
         {
             if((!item.Required) && item.Layouts != null && item.Layouts.size() > 0)
@@ -333,6 +444,23 @@ public with sharing class MetadataServiceUtile
         }
         
         return messages;
+    }
+
+    public static List<String> handleDeleteResults(MetadataService.DeleteResult deleteResult)
+    {
+        if(deleteResult==null || deleteResult.success)
+        {
+            return null;
+        }
+        List<String> messages = new List<String>();
+         
+        messages.add((deleteResult.errors.size()==1 ? 'Error ' : 'Errors ') + 'occured processing component ' + deleteResult.fullName + '.');
+        for(MetadataService.Error error : deleteResult.errors)
+        {
+            messages.add(error.message + ' (' + error.statusCode + ').' + ( error.fields!=null && error.fields.size()>0 ? ' Fields ' + String.join(error.fields, ',') + '.' : '' ) );
+        }
+        
+        return messages;
     } 
 
     public static MetadataService.MetadataPort createService()
@@ -340,6 +468,7 @@ public with sharing class MetadataServiceUtile
         MetadataService.MetadataPort service = new MetadataService.MetadataPort();
         service.SessionHeader = new MetadataService.SessionHeader_element();
         service.SessionHeader.sessionId = UserInfo.getSessionId();
+        service.timeout_x = 30000;
         return service;     
     }
 
